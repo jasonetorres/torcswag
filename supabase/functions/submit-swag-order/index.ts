@@ -179,55 +179,33 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
 
 async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emails?: string) {
   console.log("=== EMAIL FUNCTION START ===");
-  console.log("API Key provided:", !!apiKey);
-  console.log("Emails provided:", !!emails);
   
-  if (!apiKey) {
-    console.log("Resend API key not configured, skipping email notifications");
-    return { skipped: true, reason: "No API key" };
-  }
-
-  if (!emails) {
-    console.log("Notification emails not configured, skipping email notifications");
-    return { skipped: true, reason: "No email addresses" };
-  }
-
-  const emailList = emails.split(",").map((email) => email.trim());
-  console.log("Sending emails to:", emailList);
-
-  const emailPayload = {
-    from: "onboarding@resend.dev",
-    to: emailList,
-    subject: "New Swag Order from " + data.name,
-    text: `Someone submitted a swag order!\n\nName: ${data.name}\nEmail: ${data.email}\nFirst Choice: ${data.firstChoice}\nSecond Choice: ${data.secondChoice}`
+  // Use a simple webhook service that doesn't require API keys
+  const webhookPayload = {
+    to: "jason@torc.dev,angelos@teamtorc.com",
+    subject: "New TORC Swag Order from " + data.name,
+    message: `New swag order submitted!\n\nName: ${data.name}\nEmail: ${data.email}\nAddress: ${data.address}, ${data.city}, ${data.stateProvince} ${data.zipCode}, ${data.country}\nT-Shirt Size: ${data.tshirtSize}\nHoodie Size: ${data.hoodieSize}\nEmployee: ${data.isEmployee ? 'Yes' : 'No'}\n${data.isEmployee ? 'Manager: ' + data.manager + '\n' : ''}First Choice: ${data.firstChoice}\nSecond Choice: ${data.secondChoice}\n\nSubmitted: ${data.submittedAt}`
   };
 
-  console.log("Email payload created:", JSON.stringify(emailPayload, null, 2));
-  console.log("About to make fetch request to Resend...");
+  console.log("Sending webhook notification...");
 
-  const emailResponse = await fetch("https://api.resend.com/emails", {
+  const emailResponse = await fetch("https://formspree.io/f/xdkogqpv", {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(emailPayload),
+    body: JSON.stringify(webhookPayload),
   });
 
-  console.log("Fetch completed. Response status:", emailResponse.status);
-  console.log("Response headers:", Object.fromEntries(emailResponse.headers.entries()));
-
   const emailResult = await emailResponse.text();
-  console.log("Response body:", emailResult);
+  console.log("Webhook response:", emailResponse.status, emailResult);
 
   if (!emailResponse.ok) {
-    console.error("Email response not OK. Status:", emailResponse.status);
-    console.error("Response body:", emailResult);
-    throw new Error(`Resend API error: ${emailResponse.status} - ${emailResult}`);
+    throw new Error(`Webhook error: ${emailResponse.status} - ${emailResult}`);
   }
 
-  console.log("Email sent successfully!");
-  return JSON.parse(emailResult);
+  console.log("Notification sent successfully!");
+  return { success: true };
 
   return JSON.parse(result);
 }
