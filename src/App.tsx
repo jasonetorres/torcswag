@@ -392,6 +392,7 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
         <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
 
   try {
+        }
     const response = await fetch(sheetsUrl, {
       method: "POST",
       headers: {
@@ -418,8 +419,11 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
 }
 
 async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emails?: string) {
+  }
   console.log("=== EMAIL FUNCTION START ===");
   console.log("API Key provided:", !!apiKey);
   
   if (!apiKey) {
     throw new Error("Resend API key not configured");
+  }
+}
