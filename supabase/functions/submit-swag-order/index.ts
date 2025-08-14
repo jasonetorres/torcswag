@@ -179,29 +179,41 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
 
 async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emails?: string) {
   console.log("=== EMAIL FUNCTION START ===");
+  console.log("API Key provided:", !!apiKey);
   
-  // Use Discord webhook for instant notifications
-  const discordPayload = {
-    content: `🎁 **New TORC Swag Order!**\n\n**Name:** ${data.name}\n**Email:** ${data.email}\n**Address:** ${data.address}, ${data.city}, ${data.stateProvince} ${data.zipCode}, ${data.country}\n**T-Shirt Size:** ${data.tshirtSize}\n**Hoodie Size:** ${data.hoodieSize}\n**Employee:** ${data.isEmployee ? 'Yes' : 'No'}\n${data.isEmployee ? `**Manager:** ${data.manager}\n` : ''}**First Choice:** ${data.firstChoice}\n**Second Choice:** ${data.secondChoice}\n\n**Submitted:** ${data.submittedAt}`
-  };
-
-  console.log("Sending Discord notification...");
-
-  const discordResponse = await fetch("https://discord.com/api/webhooks/1335779088893984778/YjJhNzY4ZjAtNzY4Zi00ZjY4LTk2ZjgtNzY4ZjY4ZjY4ZjY4", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(discordPayload),
-  });
-
-  const discordResult = await discordResponse.text();
-  console.log("Discord response:", discordResponse.status, discordResult);
-
-  if (!discordResponse.ok) {
-    throw new Error(`Discord webhook error: ${discordResponse.status} - ${discordResult}`);
+  if (!apiKey) {
+    throw new Error("Resend API key not configured");
   }
 
-  console.log("Discord notification sent successfully!");
-  return { success: true };
+  // Send email to your own email address (the one associated with Resend account)
+  const emailPayload = {
+    from: "onboarding@resend.dev",
+    to: ["jasontorres585@icloud.com"], // Your email address
+    subject: `🎁 New TORC Swag Order from ${data.name}`,
+    html: `
+      <h2>🎁 New TORC Swag Order Submitted!</h2>
+      
+      <h3>👤 Customer Information:</h3>
+      <ul>
+        <li><strong>Name:</strong> ${data.name}</li>
+        <li><strong>Email:</strong> ${data.email}</li>
+        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
+        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
+      </ul>
+      
+      <h3>📍 Shipping Address:</h3>
+      <p>
+        ${data.address}<br>
+        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
+        ${data.country}
+      </p>
+      
+      <h3>👕 Size Information:</h3>
+      <ul>
+        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
+    throw new Error(`Resend API error: ${emailResponse.status} - ${emailResult}`);
+  }
+
+  console.log("Email sent successfully!");
+  return JSON.parse(emailResult);
 }
