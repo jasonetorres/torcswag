@@ -69,8 +69,8 @@ Deno.serve(async (req: Request) => {
 
     // Get environment variables
     const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzY0TGrg-mwgelTyEUtNejiVW0dUwQ0J8TIYGQahvTRkGr3_QQEEk9q6aL2TqfgahU1/exec";
-    const RESEND_API_KEY = "re_iZF1qCWN_9fsQRXpjDGn3kbPsvcA5dmcY";
-    const NOTIFICATION_EMAILS = "jasontorres585@icloud.com";
+    const RESEND_API_KEY = "re_KcDeC2sQ_KvAW6V7AH3izY1qj9P7em1oR";
+    const NOTIFICATION_EMAILS = "jason@torc.dev";
 
     console.log("Environment check:");
     console.log("- Google Sheets URL:", GOOGLE_SHEETS_URL ? "SET" : "NOT SET");
