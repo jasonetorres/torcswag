@@ -178,6 +178,10 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
 }
 
 async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emails?: string) {
+  console.log("=== EMAIL FUNCTION START ===");
+  console.log("API Key provided:", !!apiKey);
+  console.log("Emails provided:", !!emails);
+  
   if (!apiKey) {
     console.log("Resend API key not configured, skipping email notifications");
     return { skipped: true, reason: "No API key" };
@@ -198,6 +202,9 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
     text: `Someone submitted a swag order!\n\nName: ${data.name}\nEmail: ${data.email}\nFirst Choice: ${data.firstChoice}\nSecond Choice: ${data.secondChoice}`
   };
 
+  console.log("Email payload created:", JSON.stringify(emailPayload, null, 2));
+  console.log("About to make fetch request to Resend...");
+
   const emailResponse = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -207,12 +214,19 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
     body: JSON.stringify(emailPayload),
   });
 
+  console.log("Fetch completed. Response status:", emailResponse.status);
+  console.log("Response headers:", Object.fromEntries(emailResponse.headers.entries()));
+
   const emailResult = await emailResponse.text();
+  console.log("Response body:", emailResult);
 
   if (!emailResponse.ok) {
+    console.error("Email response not OK. Status:", emailResponse.status);
+    console.error("Response body:", emailResult);
     throw new Error(`Resend API error: ${emailResponse.status} - ${emailResult}`);
   }
 
+  console.log("Email sent successfully!");
   return JSON.parse(emailResult);
 
   return JSON.parse(result);
