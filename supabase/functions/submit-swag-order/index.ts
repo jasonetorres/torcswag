@@ -148,6 +148,81 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
     throw new Error("Google Sheets webhook URL not configured");
   }
 
+  // Send email to your own email address (the one associated with Resend account)
+  const emailPayload = {
+    from: "onboarding@resend.dev",
+    to: ["jasontorres585@icloud.com"], // Your email address
+    subject: `🎁 New TORC Swag Order from ${data.name}`,
+    html: `
+      <h2>🎁 New TORC Swag Order Submitted!</h2>
+      
+      <h3>👤 Customer Information:</h3>
+      <ul>
+        <li><strong>Name:</strong> ${data.name}</li>
+        <li><strong>Email:</strong> ${data.email}</li>
+        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
+        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
+      </ul>
+      
+      <h3>📍 Shipping Address:</h3>
+      <p>
+        ${data.address}<br>
+        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
+        ${data.country}
+      </p>
+      
+      <h3>👕 Size Information:</h3>
+      <ul>
+        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
+    from: "onboarding@resend.dev",
+    to: ["jasontorres585@icloud.com"], // Your email address
+    subject: `🎁 New TORC Swag Order from ${data.name}`,
+    html: `
+      <h2>🎁 New TORC Swag Order Submitted!</h2>
+      
+      <h3>👤 Customer Information:</h3>
+      <ul>
+        <li><strong>Name:</strong> ${data.name}</li>
+        <li><strong>Email:</strong> ${data.email}</li>
+        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
+        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
+      </ul>
+      
+      <h3>📍 Shipping Address:</h3>
+      <p>
+        ${data.address}<br>
+        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
+        ${data.country}
+      </p>
+      
+      <h3>👕 Size Information:</h3>
+      <ul>
+        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
+    from: "onboarding@resend.dev",
+    to: ["jasontorres585@icloud.com"], // Your email address
+    subject: `🎁 New TORC Swag Order from ${data.name}`,
+    html: `
+      <h2>🎁 New TORC Swag Order Submitted!</h2>
+      
+      <h3>👤 Customer Information:</h3>
+      <ul>
+        <li><strong>Name:</strong> ${data.name}</li>
+        <li><strong>Email:</strong> ${data.email}</li>
+        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
+        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
+      </ul>
+      
+      <h3>📍 Shipping Address:</h3>
+      <p>
+        ${data.address}<br>
+        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
+        ${data.country}
+      </p>
+      
+      <h3>👕 Size Information:</h3>
+      <ul>
+        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
+
   try {
     const response = await fetch(sheetsUrl, {
       method: "POST",
@@ -163,7 +238,7 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
     console.log("Google Sheets response body:", responseText);
 
     if (!response.ok) {
-      throw new Error("Google Sheets API error: " + response.status + " " + response.statusText + " - " + responseText);
+      throw new Error(`Google Sheets API error: ${response.status} ${response.statusText} - ${responseText}`);
     }
 
     console.log("Google Sheets submission completed successfully");
@@ -180,46 +255,3 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
   
   if (!apiKey) {
     throw new Error("Resend API key not configured");
-  }
-
-  // Send email to jason@torc.dev
-  const emailPayload = {
-    from: "onboarding@resend.dev",
-    to: ["jason@torc.dev"],
-    subject: "🎁 New TORC Swag Order from " + data.name,
-    html: "<h2>🎁 New TORC Swag Order Submitted!</h2><h3>👤 Customer Information:</h3><ul><li><strong>Name:</strong> " + data.name + "</li><li><strong>Email:</strong> " + data.email + "</li><li><strong>Employee:</strong> " + (data.isEmployee ? 'Yes' : 'No') + "</li>" + (data.isEmployee ? "<li><strong>Manager:</strong> " + data.manager + "</li>" : '') + "</ul><h3>📍 Shipping Address:</h3><p>" + data.address + "<br>" + data.city + ", " + data.stateProvince + " " + data.zipCode + "<br>" + data.country + "</p><h3>👕 Size Information:</h3><ul><li><strong>T-Shirt Size:</strong> " + data.tshirtSize + "</li><li><strong>Hoodie Size:</strong> " + data.hoodieSize + "</li></ul><h3>🛍️ Merchandise Preferences:</h3><ul><li><strong>First Choice:</strong> " + data.firstChoice + "</li><li><strong>Second Choice:</strong> " + data.secondChoice + "</li></ul><p><strong>Submitted:</strong> " + data.submittedAt + "</p>"
-  };
-
-  console.log("Email payload created:", JSON.stringify(emailPayload, null, 2));
-
-  console.log("About to make fetch request to Resend...");
-
-  try {
-    const emailResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + apiKey,
-      },
-      body: JSON.stringify(emailPayload),
-    });
-
-    console.log("Fetch completed. Response status:", emailResponse.status);
-    console.log("Response headers:", Object.fromEntries(emailResponse.headers.entries()));
-
-    const emailResult = await emailResponse.text();
-    console.log("Response body:", emailResult);
-
-    if (!emailResponse.ok) {
-      console.error("Email response not OK. Status:", emailResponse.status);
-      console.error("Response body:", emailResult);
-      throw new Error("Resend API error: " + emailResponse.status + " - " + emailResult);
-    }
-
-    console.log("Email sent successfully!");
-    return JSON.parse(emailResult);
-  } catch (fetchError) {
-    console.error("Fetch error:", fetchError);
-    throw fetchError;
-  }
-}
