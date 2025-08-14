@@ -171,19 +171,95 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
 
 async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emails?: string) {
   if (!apiKey) {
-    throw new Error("Resend API key not configured");
+    console.log("Resend API key not configured, skipping email notifications");
+    return { skipped: true, reason: "No API key" };
   }
 
   if (!emails) {
-    throw new Error("Notification emails not configured");
+    console.log("Notification emails not configured, skipping email notifications");
+    return { skipped: true, reason: "No email addresses" };
   }
 
   const emailList = emails.split(",").map((email) => email.trim());
   console.log("Sending emails to:", emailList);
 
   const emailContent = `
-    <h2>New TORC Swag Order Submitted</h2>
-    <p><strong>Submitted:</strong> ${new Date(data.submittedAt!).toLocaleString()}</p>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #0044ff;">New TORC Swag Order Submitted</h2>
+      <p><strong>Submitted:</strong> ${new Date(data.submittedAt!).toLocaleString()}</p>
+      
+      <h3>Personal Information</h3>
+      <p><strong>Name:</strong> ${data.name}</p>
+      <p><strong>Email:</strong> ${data.email}</p>
+      
+      <h3>Shipping Address</h3>
+      <p><strong>Address:</strong> ${data.address}</p>
+      <p><strong>City:</strong> ${data.city}</p>
+      <p><strong>State/Province:</strong> ${data.stateProvince}</p>
+      <p><strong>Zip Code:</strong> ${data.zipCode}</p>
+      <p><strong>Country:</strong> ${data.country}</p>
+      
+      <h3>Sizing</h3>
+      <p><strong>T-Shirt Size:</strong> ${data.tshirtSize}</p>
+      <p><strong>Hoodie Size:</strong> ${data.hoodieSize}</p>
+      
+      <h3>Employment</h3>
+      <p><strong>TORC Employee:</strong> ${data.isEmployee ? "Yes" : "No"}</p>
+      ${data.isEmployee ? `<p><strong>Manager:</strong> ${data.manager}</p>` : ""}
+      
+      <h3>Merchandise Preferences</h3>
+      <p><strong>First Choice:</strong> ${data.firstChoice}</p>
+      <p><strong>Second Choice:</strong> ${data.secondChoice}</p>
+    </div>
+  `;
+
+  const emailPayload = {
+    from: "TORC Swag Store <onboarding@resend.dev>",
+    to: emailList,
+    subject: `New Swag Order from ${data.name}`,
+    html: emailContent,
+  };
+
+  console.log("Email payload:", JSON.stringify(emailPayload, null, 2));
+
+  try {
+    console.log("Sending request to Resend API...");
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(emailPayload),
+    });
+
+    console.log("Resend API response received");
+    console.log("Resend response status:", response.status);
+    console.log("Resend response headers:", Object.fromEntries(response.headers.entries()));
+
+    const responseText = await response.text();
+    console.log("Resend response body:", responseText);
+
+    if (!response.ok) {
+      throw new Error(`Resend API error: ${response.status} ${response.statusText} - ${responseText}`);
+    }
+
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+      console.log("Parsed Resend response:", responseData);
+    } catch (parseError) {
+      console.log("Could not parse Resend response as JSON:", responseText);
+      responseData = { raw: responseText };
+    }
+
+    console.log("Email notifications sent successfully");
+    return responseData;
+  } catch (fetchError) {
+    console.error("Fetch error to Resend:", fetchError);
+    throw fetchError;
+  }
+}
     
     <h3>Personal Information</h3>
     <p><strong>Name:</strong> ${data.name}</p>
