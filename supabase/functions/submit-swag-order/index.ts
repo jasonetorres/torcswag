@@ -185,10 +185,39 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
 
   // Create email payload
   const payload = {
-    from: "TORC Swag Store <onboarding@resend.dev>",
+    from: "TORC Swag Store <noreply@resend.dev>",
     to: emailList,
     subject: "New TORC Swag Order Submitted",
-    html: `<h2>New TORC Swag Order</h2><p>Name: ${data.name}</p><p>Email: ${data.email}</p><p>First Choice: ${data.firstChoice}</p><p>Second Choice: ${data.secondChoice}</p>`
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #0044ff;">New TORC Swag Order Submitted</h2>
+        
+        <h3>Customer Information</h3>
+        <p><strong>Name:</strong> ${data.name}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+        
+        <h3>Shipping Address</h3>
+        <p><strong>Address:</strong> ${data.address}</p>
+        <p><strong>City:</strong> ${data.city}, ${data.stateProvince} ${data.zipCode}</p>
+        <p><strong>Country:</strong> ${data.country}</p>
+        
+        <h3>Sizing</h3>
+        <p><strong>T-Shirt Size:</strong> ${data.tshirtSize}</p>
+        <p><strong>Hoodie Size:</strong> ${data.hoodieSize}</p>
+        
+        <h3>Employment</h3>
+        <p><strong>TORC Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</p>
+        ${data.isEmployee ? `<p><strong>Manager:</strong> ${data.manager}</p>` : ''}
+        
+        <h3>Merchandise Preferences</h3>
+        <p><strong>First Choice:</strong> ${data.firstChoice}</p>
+        <p><strong>Second Choice:</strong> ${data.secondChoice}</p>
+        
+        <p style="margin-top: 30px; color: #666; font-size: 12px;">
+          Submitted at: ${data.submittedAt}
+        </p>
+      </div>
+    `
   };
 
   console.log("Sending email with payload:", JSON.stringify(payload, null, 2));
