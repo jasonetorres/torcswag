@@ -183,8 +183,54 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
   const emailList = emails.split(",").map((email) => email.trim());
   console.log("Sending emails to:", emailList);
 
-  // Create email payload
-  const payload = {
+  // Create email content
+  const emailContent = `
+From: TORC Swag Store <noreply@resend.dev>
+To: ${emailList.join(', ')}
+Subject: New TORC Swag Order Submitted
+Content-Type: text/html; charset=utf-8
+
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <h2 style="color: #0044ff;">New TORC Swag Order Submitted</h2>
+  
+  <h3>Customer Information</h3>
+  <p><strong>Name:</strong> ${data.name}</p>
+  <p><strong>Email:</strong> ${data.email}</p>
+  
+  <h3>Shipping Address</h3>
+  <p><strong>Address:</strong> ${data.address}</p>
+  <p><strong>City:</strong> ${data.city}, ${data.stateProvince} ${data.zipCode}</p>
+  <p><strong>Country:</strong> ${data.country}</p>
+  
+  <h3>Sizing</h3>
+  <p><strong>T-Shirt Size:</strong> ${data.tshirtSize}</p>
+  <p><strong>Hoodie Size:</strong> ${data.hoodieSize}</p>
+  
+  <h3>Employment</h3>
+  <p><strong>TORC Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</p>
+  ${data.isEmployee ? `<p><strong>Manager:</strong> ${data.manager}</p>` : ''}
+  
+  <h3>Merchandise Preferences</h3>
+  <p><strong>First Choice:</strong> ${data.firstChoice}</p>
+  <p><strong>Second Choice:</strong> ${data.secondChoice}</p>
+  
+  <p style="margin-top: 30px; color: #666; font-size: 12px;">
+    Submitted at: ${data.submittedAt}
+  </p>
+</div>
+`;
+
+  console.log("Sending email via SMTP to:", emailList);
+
+  // Use SMTP via a service that accepts HTTP requests to SMTP
+  const smtpPayload = {
+    host: "smtp.resend.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "resend",
+      pass: apiKey
+    },
     from: "TORC Swag Store <noreply@resend.dev>",
     to: emailList,
     subject: "New TORC Swag Order Submitted",
@@ -220,24 +266,30 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
     `
   };
 
-  console.log("Sending email with payload:", JSON.stringify(payload, null, 2));
-
-  // Make the API call
-  const response = await fetch("https://api.resend.com/emails", {
+  // Since we can't use native SMTP in edge functions, let's try a different approach
+  // Use a service like EmailJS or go back to REST API but with proper configuration
+  const emailResponse = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      from: "TORC Swag Store <noreply@resend.dev>",
+      to: emailList,
+      subject: "New TORC Swag Order Submitted",
+      html: smtpPayload.html
+    }),
   });
 
-  const result = await response.text();
-  console.log("Resend response:", result);
+  const emailResult = await emailResponse.text();
+  console.log("Resend API response:", emailResult);
 
-  if (!response.ok) {
-    throw new Error(`Resend API error: ${response.status} - ${result}`);
+  if (!emailResponse.ok) {
+    throw new Error(`Resend API error: ${emailResponse.status} - ${emailResult}`);
   }
+
+  return JSON.parse(emailResult);
 
   return JSON.parse(result);
 }
