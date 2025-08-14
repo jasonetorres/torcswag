@@ -23,12 +23,11 @@ const corsHeaders = {
 
 Deno.serve(async (req: Request) => {
   try {
-    console.log("🚀 FUNCTION CALLED - Method:", req.method, "URL:", req.url);
-    console.log("🚀 Headers:", Object.fromEntries(req.headers.entries()));
+    console.log("Function called - Method:", req.method, "URL:", req.url);
     
     // Handle CORS preflight
     if (req.method === "OPTIONS") {
-      console.log("✅ Handling CORS preflight");
+      console.log("Handling CORS preflight");
       return new Response(null, {
         status: 200,
         headers: corsHeaders,
@@ -36,7 +35,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (req.method !== "POST") {
-      console.log("❌ Method not allowed:", req.method);
+      console.log("Method not allowed:", req.method);
       return new Response(
         JSON.stringify({ success: false, error: "Method not allowed" }),
         {
@@ -46,7 +45,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log("=== TORC Swag Order Function Started ===");
+    console.log("TORC Swag Order Function Started");
     
     // Parse form data
     let formData: SwagOrderData;
@@ -67,53 +66,30 @@ Deno.serve(async (req: Request) => {
     // Add timestamp
     formData.submittedAt = new Date().toISOString();
 
-    // Get environment variables
+    // Get Google Sheets URL
     const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzY0TGrg-mwgelTyEUtNejiVW0dUwQ0J8TIYGQahvTRkGr3_QQEEk9q6aL2TqfgahU1/exec";
-    const RESEND_API_KEY = "re_KcDeC2sQ_KvAW6V7AH3izY1qj9P7em1oR";
-    const NOTIFICATION_EMAILS = "jason@torc.dev";
 
-    console.log("Environment check:");
-    console.log("- Google Sheets URL:", GOOGLE_SHEETS_URL ? "SET" : "NOT SET");
-    console.log("- Resend API Key:", RESEND_API_KEY ? "SET" : "NOT SET");
-    console.log("- Notification Emails:", NOTIFICATION_EMAILS ? "SET" : "NOT SET");
+    console.log("Google Sheets URL:", GOOGLE_SHEETS_URL ? "SET" : "NOT SET");
 
     let sheetsSuccess = false;
-    let emailSuccess = false;
 
     // Send to Google Sheets
     try {
-      console.log("=== Attempting Google Sheets submission ===");
+      console.log("Attempting Google Sheets submission");
       await sendToGoogleSheets(formData, GOOGLE_SHEETS_URL);
       sheetsSuccess = true;
-      console.log("✅ Google Sheets submission successful");
+      console.log("Google Sheets submission successful");
     } catch (sheetsError) {
-      console.error("❌ Google Sheets submission failed:", sheetsError);
+      console.error("Google Sheets submission failed:", sheetsError);
     }
 
-    // Send email notifications
-    try {
-      console.log("=== Attempting email notifications ===");
-      await sendEmailNotifications(formData, RESEND_API_KEY, NOTIFICATION_EMAILS);
-      emailSuccess = true;
-      console.log("✅ Email notifications successful");
-    } catch (emailError) {
-      console.error("❌ Email notifications failed:");
-      console.error("Error message:", emailError.message);
-      console.error("Full error:", emailError);
-      console.error("Stack trace:", emailError.stack);
-    }
-
-    // Return success if at least one method worked
-    if (sheetsSuccess || emailSuccess) {
-      console.log("=== Function completed successfully ===");
+    // Return success if sheets worked
+    if (sheetsSuccess) {
+      console.log("Function completed successfully");
       return new Response(
         JSON.stringify({
           success: true,
           message: "Order submitted successfully",
-          details: {
-            sheets: sheetsSuccess,
-            email: emailSuccess,
-          },
         }),
         {
           status: 200,
@@ -121,9 +97,9 @@ Deno.serve(async (req: Request) => {
         }
       );
     } else {
-      console.log("=== Function failed - no successful submissions ===");
+      console.log("Function failed - no successful submissions");
       return new Response(
-        JSON.stringify({ success: false, error: "Failed to submit to any service" }),
+        JSON.stringify({ success: false, error: "Failed to submit to Google Sheets" }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -131,7 +107,7 @@ Deno.serve(async (req: Request) => {
       );
     }
   } catch (err) {
-    console.error("=== Unexpected error in main function ===");
+    console.error("Unexpected error in main function");
     console.error("Error details:", err);
     return new Response(
       JSON.stringify({ success: false, error: "Unexpected error: " + (err as Error).message }),
@@ -147,225 +123,6 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
   if (!sheetsUrl) {
     throw new Error("Google Sheets webhook URL not configured");
   }
-
-  // Send email to your own email address (the one associated with Resend account)
-  const emailPayload = {
-    from: "onboarding@resend.dev",
-    to: ["jasontorres585@icloud.com"], // Your email address
-    subject: `🎁 New TORC Swag Order from ${data.name}`,
-    html: `
-      <h2>🎁 New TORC Swag Order Submitted!</h2>
-      
-      <h3>👤 Customer Information:</h3>
-      <ul>
-        <li><strong>Name:</strong> ${data.name}</li>
-        <li><strong>Email:</strong> ${data.email}</li>
-        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
-        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
-      </ul>
-      
-      <h3>📍 Shipping Address:</h3>
-      <p>
-        ${data.address}<br>
-        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
-        ${data.country}
-      </p>
-      
-      <h3>👕 Size Information:</h3>
-      <ul>
-        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
-    from: "onboarding@resend.dev",
-    to: ["jasontorres585@icloud.com"], // Your email address
-    subject: `🎁 New TORC Swag Order from ${data.name}`,
-    html: `
-      <h2>🎁 New TORC Swag Order Submitted!</h2>
-      
-      <h3>👤 Customer Information:</h3>
-      <ul>
-        <li><strong>Name:</strong> ${data.name}</li>
-        <li><strong>Email:</strong> ${data.email}</li>
-        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
-        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
-      </ul>
-      
-      <h3>📍 Shipping Address:</h3>
-      <p>
-        ${data.address}<br>
-        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
-        ${data.country}
-      </p>
-      
-      <h3>👕 Size Information:</h3>
-      <ul>
-        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
-    from: "onboarding@resend.dev",
-    to: ["jasontorres585@icloud.com"], // Your email address
-    subject: `🎁 New TORC Swag Order from ${data.name}`,
-    html: `
-      <h2>🎁 New TORC Swag Order Submitted!</h2>
-      
-      <h3>👤 Customer Information:</h3>
-      <ul>
-        <li><strong>Name:</strong> ${data.name}</li>
-        <li><strong>Email:</strong> ${data.email}</li>
-        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
-        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
-      </ul>
-      
-      <h3>📍 Shipping Address:</h3>
-      <p>
-        ${data.address}<br>
-        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
-        ${data.country}
-      </p>
-      
-      <h3>👕 Size Information:</h3>
-      <ul>
-        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
-    from: "onboarding@resend.dev",
-    to: ["jasontorres585@icloud.com"], // Your email address
-    subject: `🎁 New TORC Swag Order from ${data.name}`,
-    html: `
-      <h2>🎁 New TORC Swag Order Submitted!</h2>
-      
-      <h3>👤 Customer Information:</h3>
-      <ul>
-        <li><strong>Name:</strong> ${data.name}</li>
-        <li><strong>Email:</strong> ${data.email}</li>
-        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
-        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
-      </ul>
-      
-      <h3>📍 Shipping Address:</h3>
-      <p>
-        ${data.address}<br>
-        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
-        ${data.country}
-      </p>
-      
-      <h3>👕 Size Information:</h3>
-      <ul>
-        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
-    from: "onboarding@resend.dev",
-    to: ["jasontorres585@icloud.com"], // Your email address
-    subject: `🎁 New TORC Swag Order from ${data.name}`,
-    html: `
-      <h2>🎁 New TORC Swag Order Submitted!</h2>
-      
-      <h3>👤 Customer Information:</h3>
-      <ul>
-        <li><strong>Name:</strong> ${data.name}</li>
-        <li><strong>Email:</strong> ${data.email}</li>
-        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
-        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
-      </ul>
-      
-      <h3>📍 Shipping Address:</h3>
-      <p>
-        ${data.address}<br>
-        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
-        ${data.country}
-      </p>
-      
-      <h3>👕 Size Information:</h3>
-      <ul>
-        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
-    from: "onboarding@resend.dev",
-    to: ["jasontorres585@icloud.com"], // Your email address
-    subject: `🎁 New TORC Swag Order from ${data.name}`,
-    html: `
-      <h2>🎁 New TORC Swag Order Submitted!</h2>
-      
-      <h3>👤 Customer Information:</h3>
-      <ul>
-        <li><strong>Name:</strong> ${data.name}</li>
-        <li><strong>Email:</strong> ${data.email}</li>
-        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
-        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
-      </ul>
-      
-      <h3>📍 Shipping Address:</h3>
-      <p>
-        ${data.address}<br>
-        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
-        ${data.country}
-      </p>
-      
-      <h3>👕 Size Information:</h3>
-      <ul>
-        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
-    from: "onboarding@resend.dev",
-    to: ["jasontorres585@icloud.com"], // Your email address
-    subject: `🎁 New TORC Swag Order from ${data.name}`,
-    html: `
-      <h2>🎁 New TORC Swag Order Submitted!</h2>
-      
-      <h3>👤 Customer Information:</h3>
-      <ul>
-        <li><strong>Name:</strong> ${data.name}</li>
-        <li><strong>Email:</strong> ${data.email}</li>
-        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
-        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
-      </ul>
-      
-      <h3>📍 Shipping Address:</h3>
-      <p>
-        ${data.address}<br>
-        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
-        ${data.country}
-      </p>
-      
-      <h3>👕 Size Information:</h3>
-      <ul>
-        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
-    from: "onboarding@resend.dev",
-    to: ["jasontorres585@icloud.com"], // Your email address
-    subject: `🎁 New TORC Swag Order from ${data.name}`,
-    html: `
-      <h2>🎁 New TORC Swag Order Submitted!</h2>
-      
-      <h3>👤 Customer Information:</h3>
-      <ul>
-        <li><strong>Name:</strong> ${data.name}</li>
-        <li><strong>Email:</strong> ${data.email}</li>
-        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
-        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
-      </ul>
-      
-      <h3>📍 Shipping Address:</h3>
-      <p>
-        ${data.address}<br>
-        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
-        ${data.country}
-      </p>
-      
-      <h3>👕 Size Information:</h3>
-      <ul>
-        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
-    from: "onboarding@resend.dev",
-    to: ["jasontorres585@icloud.com"], // Your email address
-    subject: `🎁 New TORC Swag Order from ${data.name}`,
-    html: `
-      <h2>🎁 New TORC Swag Order Submitted!</h2>
-      
-      <h3>👤 Customer Information:</h3>
-      <ul>
-        <li><strong>Name:</strong> ${data.name}</li>
-        <li><strong>Email:</strong> ${data.email}</li>
-        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
-        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
-      </ul>
-      
-      <h3>📍 Shipping Address:</h3>
-      <p>
-        ${data.address}<br>
-        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
-        ${data.country}
-      </p>
-      
-      <h3>👕 Size Information:</h3>
-      <ul>
-        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
 
   try {
     const response = await fetch(sheetsUrl, {
@@ -390,14 +147,5 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
   } catch (fetchError) {
     console.error("Fetch error to Google Sheets:", fetchError);
     throw fetchError;
-  }
-}
-
-async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emails?: string) {
-  console.log("=== EMAIL FUNCTION START ===");
-  console.log("API Key provided:", !!apiKey);
-  
-  if (!apiKey) {
-    throw new Error("Resend API key not configured");
   }
 }
