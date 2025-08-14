@@ -1,0 +1,15 @@
+{
+  "name": "torc-swag-function",
+  "version": "1.0.0",
+  "description": "TORC Swag Order Processing Function",
+  "main": "appwrite-function.js",
+  "scripts": {
+    "start": "node appwrite-function.js"
+  },
+  "dependencies": {
+    "node-appwrite": "^13.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
