@@ -198,6 +198,7 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
       <h3>👕 Size Information:</h3>
       <ul>
         <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
+  }
 
   try {
     const response = await fetch(sheetsUrl, {
@@ -237,4 +238,5 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
       <h3>👕 Size Information:</h3>
       <ul>
         <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
+  }
 }
