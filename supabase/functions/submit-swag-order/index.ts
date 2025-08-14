@@ -64,8 +64,8 @@ Deno.serve(async (req: Request) => {
 
     // Get environment variables
     const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzY0TGrg-mwgelTyEUtNejiVW0dUwQ0J8TIYGQahvTRkGr3_QQEEk9q6aL2TqfgahU1/exec";
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") || "re_iZF1qCWN_9fsQRXpjDGn3kbPsvcA5dmcY";
-    const NOTIFICATION_EMAILS = Deno.env.get("NOTIFICATION_EMAILS") || "jason@torc.dev,angelos@teamtorc.com";
+    const RESEND_API_KEY = "re_iZF1qCWN_9fsQRXpjDGn3kbPsvcA5dmcY";
+    const NOTIFICATION_EMAILS = "jason@torc.dev,angelos@teamtorc.com";
 
     console.log("Environment check:");
     console.log("- Google Sheets URL:", GOOGLE_SHEETS_URL ? "SET" : "NOT SET");
@@ -171,13 +171,11 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
 
 async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emails?: string) {
   if (!apiKey) {
-    console.log("Resend API key not configured, skipping email notifications");
-    return;
+    throw new Error("Resend API key not configured");
   }
 
   if (!emails) {
-    console.log("Notification emails not configured, skipping email notifications");
-    return;
+    throw new Error("Notification emails not configured");
   }
 
   const emailList = emails.split(",").map((email) => email.trim());
@@ -221,6 +219,7 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
   console.log("Email payload:", JSON.stringify(emailPayload, null, 2));
 
   try {
+    console.log("Sending request to Resend API...");
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -230,6 +229,7 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
       body: JSON.stringify(emailPayload),
     });
 
+    console.log("Resend API response received");
     console.log("Resend response status:", response.status);
 
     const responseText = await response.text();
@@ -239,8 +239,16 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
       throw new Error(`Resend API error: ${response.status} ${response.statusText} - ${responseText}`);
     }
 
+    let responseData;
+    try {
+      responseData = JSON.parse(responseText);
+      console.log("Parsed Resend response:", responseData);
+    } catch (parseError) {
+      console.log("Could not parse Resend response as JSON:", responseText);
+    }
+
     console.log("Email notifications sent successfully");
-    return responseText;
+    return responseData || responseText;
   } catch (fetchError) {
     console.error("Fetch error to Resend:", fetchError);
     throw fetchError;
