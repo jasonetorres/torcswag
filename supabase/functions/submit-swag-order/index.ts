@@ -217,3 +217,5 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
   console.log("Email sent successfully!");
   return JSON.parse(emailResult);
 }
+  }
+}
