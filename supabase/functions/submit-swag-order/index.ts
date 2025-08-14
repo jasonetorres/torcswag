@@ -152,9 +152,9 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
   const emailPayload = {
     from: "onboarding@resend.dev",
     to: ["jasontorres585@icloud.com"], // Your email address
-    subject: `🎁 New TORC Swag Order from ${data.name}`,
+    subject: `New TORC Swag Order from ${data.name}`,
     html: `
-      <h2>🎁 New TORC Swag Order Submitted!</h2>
+      <h2> New TORC Swag Order Submitted!</h2>
       
       <h3>👤 Customer Information:</h3>
       <ul>
