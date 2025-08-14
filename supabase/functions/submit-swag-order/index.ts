@@ -224,7 +224,8 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
 
   try {
     console.log("Sending request to Resend API...");
-    const response = await fetch("https://api.resend.com/emails", {
+    
+    const resendResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
@@ -233,15 +234,15 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
       body: JSON.stringify(emailPayload),
     });
 
-    console.log("Resend API response received");
-    console.log("Resend response status:", response.status);
-    console.log("Resend response headers:", Object.fromEntries(response.headers.entries()));
+    console.log("Resend API POST response received");
+    console.log("Resend response status:", resendResponse.status);
+    console.log("Resend response headers:", Object.fromEntries(resendResponse.headers.entries()));
 
-    const responseText = await response.text();
+    const responseText = await resendResponse.text();
     console.log("Resend response body:", responseText);
 
-    if (!response.ok) {
-      throw new Error(`Resend API error: ${response.status} ${response.statusText} - ${responseText}`);
+    if (!resendResponse.ok) {
+      throw new Error(`Resend API error: ${resendResponse.status} ${resendResponse.statusText} - ${responseText}`);
     }
 
     let responseData;
