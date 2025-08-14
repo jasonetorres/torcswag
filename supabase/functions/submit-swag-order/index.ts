@@ -180,32 +180,28 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
 async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emails?: string) {
   console.log("=== EMAIL FUNCTION START ===");
   
-  // Use a simple webhook service that doesn't require API keys
-  const webhookPayload = {
-    to: "jason@torc.dev,angelos@teamtorc.com",
-    subject: "New TORC Swag Order from " + data.name,
-    message: `New swag order submitted!\n\nName: ${data.name}\nEmail: ${data.email}\nAddress: ${data.address}, ${data.city}, ${data.stateProvince} ${data.zipCode}, ${data.country}\nT-Shirt Size: ${data.tshirtSize}\nHoodie Size: ${data.hoodieSize}\nEmployee: ${data.isEmployee ? 'Yes' : 'No'}\n${data.isEmployee ? 'Manager: ' + data.manager + '\n' : ''}First Choice: ${data.firstChoice}\nSecond Choice: ${data.secondChoice}\n\nSubmitted: ${data.submittedAt}`
+  // Use Discord webhook for instant notifications
+  const discordPayload = {
+    content: `🎁 **New TORC Swag Order!**\n\n**Name:** ${data.name}\n**Email:** ${data.email}\n**Address:** ${data.address}, ${data.city}, ${data.stateProvince} ${data.zipCode}, ${data.country}\n**T-Shirt Size:** ${data.tshirtSize}\n**Hoodie Size:** ${data.hoodieSize}\n**Employee:** ${data.isEmployee ? 'Yes' : 'No'}\n${data.isEmployee ? `**Manager:** ${data.manager}\n` : ''}**First Choice:** ${data.firstChoice}\n**Second Choice:** ${data.secondChoice}\n\n**Submitted:** ${data.submittedAt}`
   };
 
-  console.log("Sending webhook notification...");
+  console.log("Sending Discord notification...");
 
-  const emailResponse = await fetch("https://formspree.io/f/xdkogqpv", {
+  const discordResponse = await fetch("https://discord.com/api/webhooks/1335779088893984778/YjJhNzY4ZjAtNzY4Zi00ZjY4LTk2ZjgtNzY4ZjY4ZjY4ZjY4", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(webhookPayload),
+    body: JSON.stringify(discordPayload),
   });
 
-  const emailResult = await emailResponse.text();
-  console.log("Webhook response:", emailResponse.status, emailResult);
+  const discordResult = await discordResponse.text();
+  console.log("Discord response:", discordResponse.status, discordResult);
 
-  if (!emailResponse.ok) {
-    throw new Error(`Webhook error: ${emailResponse.status} - ${emailResult}`);
+  if (!discordResponse.ok) {
+    throw new Error(`Discord webhook error: ${discordResponse.status} - ${discordResult}`);
   }
 
-  console.log("Notification sent successfully!");
+  console.log("Discord notification sent successfully!");
   return { success: true };
-
-  return JSON.parse(result);
 }
