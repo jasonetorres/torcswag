@@ -12,9 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "appwrite": "^18.2.0",
     "lucide-react": "^0.368.0",
-    "node-appwrite": "^13.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Package, Shirt, User, MapPin, Globe, Users } from 'lucide-react';
-import { Client, Functions } from 'appwrite';
 
 interface FormData {
   name: string;
@@ -96,35 +95,31 @@ function App() {
   };
   
   const submitOrder = async () => {
-    const client = new Client();
-    const functions = new Functions(client);
-
-    client
-        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
-        .setProject('your-project-id'); // Your Project ID
+    // Note: You'll need to set up Supabase and get your project URL
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'YOUR_SUPABASE_URL';
+    const apiUrl = `${supabaseUrl}/functions/v1/submit-swag-order`;
 
     try {
-        const result = await functions.createExecution(
-            '689e0625000b411bb91d', // Your Function ID
-            JSON.stringify(formData),
-            false,
-            'POST'
-        );
-        
-        console.log('Appwrite SDK response:', result);
-        
-        const responseText = (result as any).response; 
-        const statusCode = (result as any).statusCode;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY'}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
-        if (statusCode === 200 && responseText && JSON.parse(responseText).success) {
-            setIsSubmitted(true);
-        } else {
-            throw new Error(`Failed to submit order: ${responseText}`);
-        }
-        
+      const result = await response.json();
+      console.log('Supabase Edge Function response:', result);
+
+      if (response.ok && result.success) {
+        setIsSubmitted(true);
+      } else {
+        throw new Error(result.error || 'Failed to submit order');
+      }
     } catch (error) {
-        console.error('Error submitting order:', error);
-        alert(`There was an error submitting your order: ${error instanceof Error ? error.message : 'Unknown error'}. Please check the console for more details.`);
+      console.error('Error submitting order:', error);
+      alert(`There was an error submitting your order: ${error instanceof Error ? error.message : 'Unknown error'}. Please check the console for more details.`);
     }
   };
 
