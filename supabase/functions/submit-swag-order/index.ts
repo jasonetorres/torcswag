@@ -97,7 +97,10 @@ Deno.serve(async (req: Request) => {
       emailSuccess = true;
       console.log("✅ Email notifications successful");
     } catch (emailError) {
-      console.error("❌ Email notifications failed:", emailError);
+      console.error("❌ Email notifications failed:");
+      console.error("Error message:", emailError.message);
+      console.error("Full error:", emailError);
+      console.error("Stack trace:", emailError.stack);
     }
 
     // Return success if at least one method worked
