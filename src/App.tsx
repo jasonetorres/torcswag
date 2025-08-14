@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Package, Shirt, User, MapPin, Mail, Building2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Shirt, User, MapPin, Mail, Building2, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface FormData {
   name: string;
@@ -103,53 +103,53 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="bg-black text-white py-6 shadow-lg">
+      <header className="bg-black py-6 shadow-lg">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center space-x-3">
-            <Package className="w-8 h-8 text-blue-400" />
-            <h1 className="text-3xl font-bold">torc swag store</h1>
+            <img src="/toetovf.png" alt="torc logo" className="w-8 h-8" />
+            <h1 className="text-3xl font-bold text-white">torc swag store</h1>
           </div>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="bg-zinc-900 rounded-2xl shadow-xl p-8">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4">
-                <Shirt className="w-8 h-8 text-white" />
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-highlight rounded-full mb-4">
+                <Shirt className="w-8 h-8 text-black" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Order Your torc Swag</h2>
-              <p className="text-gray-600">Fill out the form below to get your awesome torc merchandise!</p>
+              <h2 className="text-2xl font-bold text-white mb-2">Order Your torc Swag</h2>
+              <p className="text-gray-400">Fill out the form below to get your awesome torc merchandise!</p>
             </div>
 
             {submitStatus === 'success' && (
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center space-x-3">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
-                <p className="text-green-800">Your swag order has been submitted successfully!</p>
+              <div className="mb-6 p-4 bg-green-900 border border-green-800 rounded-lg flex items-center space-x-3">
+                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <p className="text-green-200">Your swag order has been submitted successfully!</p>
               </div>
             )}
 
             {submitStatus === 'error' && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                <p className="text-red-800">{errorMessage}</p>
+              <div className="mb-6 p-4 bg-red-900 border border-red-800 rounded-lg flex items-center space-x-3">
+                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                <p className="text-red-200">{errorMessage}</p>
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Personal Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
-                  <User className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-200 flex items-center space-x-2">
+                  <User className="w-5 h-5 text-highlight" />
                   <span>Personal Information</span>
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-1">
                       Full Name *
                     </label>
                     <input
@@ -159,17 +159,17 @@ function App() {
                       required
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                       placeholder="Enter your full name"
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">
                       Email Address *
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-highlight" />
                       <input
                         type="email"
                         id="email"
@@ -177,7 +177,7 @@ function App() {
                         required
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                        className="w-full pl-10 pr-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                         placeholder="your.email@example.com"
                       />
                     </div>
@@ -187,13 +187,13 @@ function App() {
 
               {/* Shipping Address */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
-                  <MapPin className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-200 flex items-center space-x-2">
+                  <MapPin className="w-5 h-5 text-highlight" />
                   <span>Shipping Address</span>
                 </h3>
                 
                 <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-400 mb-1">
                     Street Address *
                   </label>
                   <input
@@ -203,14 +203,14 @@ function App() {
                     required
                     value={formData.address}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                     placeholder="123 Main Street"
                   />
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="city" className="block text-sm font-medium text-gray-400 mb-1">
                       City *
                     </label>
                     <input
@@ -220,13 +220,13 @@ function App() {
                       required
                       value={formData.city}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                       placeholder="City"
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="stateProvince" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="stateProvince" className="block text-sm font-medium text-gray-400 mb-1">
                       State/Province *
                     </label>
                     <input
@@ -236,13 +236,13 @@ function App() {
                       required
                       value={formData.stateProvince}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                       placeholder="State/Province"
                     />
                   </div>
                   
                   <div>
-                    <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="zipCode" className="block text-sm font-medium text-gray-400 mb-1">
                       ZIP/Postal Code *
                     </label>
                     <input
@@ -252,14 +252,14 @@ function App() {
                       required
                       value={formData.zipCode}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                       placeholder="12345"
                     />
                   </div>
                 </div>
                 
                 <div>
-                  <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="country" className="block text-sm font-medium text-gray-400 mb-1">
                     Country *
                   </label>
                   <input
@@ -269,7 +269,7 @@ function App() {
                     required
                     value={formData.country}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full px-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                     placeholder="United States"
                   />
                 </div>
@@ -277,8 +277,8 @@ function App() {
 
               {/* Employee Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
-                  <Building2 className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-200 flex items-center space-x-2">
+                  <Building2 className="w-5 h-5 text-highlight" />
                   <span>Employment Information</span>
                 </h3>
                 
@@ -289,16 +289,16 @@ function App() {
                     name="isEmployee"
                     checked={formData.isEmployee}
                     onChange={handleInputChange}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-highlight border-gray-300 rounded focus:ring-highlight"
                   />
-                  <label htmlFor="isEmployee" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="isEmployee" className="text-sm font-medium text-gray-400">
                     I am a torc employee
                   </label>
                 </div>
                 
                 {formData.isEmployee && (
                   <div>
-                    <label htmlFor="manager" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="manager" className="block text-sm font-medium text-gray-400 mb-1">
                       Manager Name *
                     </label>
                     <input
@@ -308,7 +308,7 @@ function App() {
                       required={formData.isEmployee}
                       value={formData.manager}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                       placeholder="Enter your manager's name"
                     />
                   </div>
@@ -317,14 +317,14 @@ function App() {
 
               {/* Swag Preferences */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
-                  <Shirt className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-semibold text-gray-200 flex items-center space-x-2">
+                  <Shirt className="w-5 h-5 text-highlight" />
                   <span>Swag Preferences</span>
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="firstChoice" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="firstChoice" className="block text-sm font-medium text-gray-400 mb-1">
                       First Choice *
                     </label>
                     <select
@@ -333,7 +333,7 @@ function App() {
                       required
                       value={formData.firstChoice}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                     >
                       {SWAG_OPTIONS.map(option => (
                         <option key={option} value={option}>{option}</option>
@@ -342,7 +342,7 @@ function App() {
                   </div>
                   
                   <div>
-                    <label htmlFor="secondChoice" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="secondChoice" className="block text-sm font-medium text-gray-400 mb-1">
                       Second Choice *
                     </label>
                     <select
@@ -351,7 +351,7 @@ function App() {
                       required
                       value={formData.secondChoice}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                     >
                       {SWAG_OPTIONS.map(option => (
                         <option key={option} value={option}>{option}</option>
@@ -362,7 +362,7 @@ function App() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="tshirtSize" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="tshirtSize" className="block text-sm font-medium text-gray-400 mb-1">
                       T-Shirt Size
                     </label>
                     <select
@@ -370,7 +370,7 @@ function App() {
                       name="tshirtSize"
                       value={formData.tshirtSize}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                     >
                       {SIZES.map(size => (
                         <option key={size} value={size}>{size}</option>
@@ -379,7 +379,7 @@ function App() {
                   </div>
                   
                   <div>
-                    <label htmlFor="hoodieSize" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="hoodieSize" className="block text-sm font-medium text-gray-400 mb-1">
                       Hoodie Size
                     </label>
                     <select
@@ -387,7 +387,7 @@ function App() {
                       name="hoodieSize"
                       value={formData.hoodieSize}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-2 border border-zinc-700 bg-zinc-800 text-white rounded-lg focus:ring-2 focus:ring-highlight focus:border-transparent transition-colors"
                     >
                       {SIZES.map(size => (
                         <option key={size} value={size}>{size}</option>
@@ -402,7 +402,7 @@ function App() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  className="w-full bg-highlight text-white py-3 px-6 rounded-lg font-semibold hover:bg-highlight-dark focus:outline-none focus:ring-2 focus:ring-highlight focus:ring-offset-2 focus:ring-offset-black transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -411,7 +411,7 @@ function App() {
                     </>
                   ) : (
                     <>
-                      <Package className="w-4 h-4" />
+                      <img src="/toetovf.png" alt="torc logo" className="w-4 h-4" />
                       <span>Submit Order</span>
                     </>
                   )}
