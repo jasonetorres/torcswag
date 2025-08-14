@@ -174,6 +174,30 @@ async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl?: string) {
       <h3>👕 Size Information:</h3>
       <ul>
         <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
+    from: "onboarding@resend.dev",
+    to: ["jasontorres585@icloud.com"], // Your email address
+    subject: `🎁 New TORC Swag Order from ${data.name}`,
+    html: `
+      <h2>🎁 New TORC Swag Order Submitted!</h2>
+      
+      <h3>👤 Customer Information:</h3>
+      <ul>
+        <li><strong>Name:</strong> ${data.name}</li>
+        <li><strong>Email:</strong> ${data.email}</li>
+        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
+        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
+      </ul>
+      
+      <h3>📍 Shipping Address:</h3>
+      <p>
+        ${data.address}<br>
+        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
+        ${data.country}
+      </p>
+      
+      <h3>👕 Size Information:</h3>
+      <ul>
+        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
 
   try {
     const response = await fetch(sheetsUrl, {
@@ -207,28 +231,10 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
   
   if (!apiKey) {
     throw new Error("Resend API key not configured");
-    to: ["jasontorres585@icloud.com"], // Your email address
-    subject: \`🎁 New TORC Swag Order from ${data.name}`,
-    html: `
-      <h2>🎁 New TORC Swag Order Submitted!</h2>
-      
-      <h3>👤 Customer Information:</h3>
-      <ul>
-        <li><strong>Name:</strong> ${data.name}</li>
-        <li><strong>Email:</strong> ${data.email}</li>
-        <li><strong>Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</li>
-        ${data.isEmployee ? `<li><strong>Manager:</strong> ${data.manager}</li>` : ''}
-      </ul>
-      
-      <h3>📍 Shipping Address:</h3>
-      <p>
-        ${data.address}<br>
-        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
         ${data.country}
       </p>
       
       <h3>👕 Size Information:</h3>
       <ul>
         <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
-  }
 }
