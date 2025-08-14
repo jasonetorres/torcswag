@@ -23,8 +23,12 @@ const corsHeaders = {
 
 Deno.serve(async (req: Request) => {
   try {
+    console.log("🚀 FUNCTION CALLED - Method:", req.method, "URL:", req.url);
+    console.log("🚀 Headers:", Object.fromEntries(req.headers.entries()));
+    
     // Handle CORS preflight
     if (req.method === "OPTIONS") {
+      console.log("✅ Handling CORS preflight");
       return new Response(null, {
         status: 200,
         headers: corsHeaders,
@@ -32,6 +36,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (req.method !== "POST") {
+      console.log("❌ Method not allowed:", req.method);
       return new Response(
         JSON.stringify({ success: false, error: "Method not allowed" }),
         {
