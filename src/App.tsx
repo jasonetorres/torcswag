@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Package, Shirt, User, Mail, MapPin, Globe, Users, Zap } from 'lucide-react';
+import { Package, Shirt, User, MapPin, Globe, Users } from 'lucide-react';
+import { Client, Functions } from 'appwrite';
 
 interface FormData {
   name: string;
   email: string;
   address: string;
+  city: string;
   stateProvince: string;
+  zipCode: string;
   country: string;
   tshirtSize: string;
   hoodieSize: string;
@@ -19,7 +22,9 @@ const initialFormData: FormData = {
   name: '',
   email: '',
   address: '',
+  city: '',
   stateProvince: '',
+  zipCode: '',
   country: '',
   tshirtSize: '',
   hoodieSize: '',
@@ -64,7 +69,9 @@ function App() {
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
     if (!formData.address.trim()) newErrors.address = 'Address is required';
+    if (!formData.city.trim()) newErrors.city = 'City is required';
     if (!formData.stateProvince.trim()) newErrors.stateProvince = 'State/Province is required';
+    if (!formData.zipCode.trim()) newErrors.zipCode = 'Zip Code is required';
     if (!formData.country.trim()) newErrors.country = 'Country is required';
     if (!formData.tshirtSize) newErrors.tshirtSize = 'T-shirt size is required';
     if (!formData.hoodieSize) newErrors.hoodieSize = 'Hoodie size is required';
@@ -87,35 +94,37 @@ function App() {
       submitOrder();
     }
   };
-
+  
   const submitOrder = async () => {
-    const functionUrl = 'https://689e06250024eea00246.nyc.appwrite.run/689e08ca6a556c965879';
-    console.log('Submitting order to:', functionUrl);
-    console.log('Form data:', formData);
-    
-    try {
-      const response = await fetch(functionUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+    const client = new Client();
+    const functions = new Functions(client);
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', [...response.headers.entries()]);
-      
-      const responseText = await response.text();
-      console.log('Response body:', responseText);
-      
-      if (response.ok) {
-        setIsSubmitted(true);
-      } else {
-        throw new Error(`Failed to submit order: ${response.status} ${response.statusText} - ${responseText}`);
-      }
+    client
+        .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+        .setProject('your-project-id'); // Your Project ID
+
+    try {
+        const result = await functions.createExecution(
+            '689e0625000b411bb91d', // Your Function ID
+            JSON.stringify(formData),
+            false,
+            'POST'
+        );
+        
+        console.log('Appwrite SDK response:', result);
+        
+        const responseText = (result as any).response; 
+        const statusCode = (result as any).statusCode;
+
+        if (statusCode === 200 && responseText && JSON.parse(responseText).success) {
+            setIsSubmitted(true);
+        } else {
+            throw new Error(`Failed to submit order: ${responseText}`);
+        }
+        
     } catch (error) {
-      console.error('Error submitting order:', error);
-      alert(`There was an error submitting your order: ${error instanceof Error ? error.message : 'Unknown error'}. Please check the console for more details.`);
+        console.error('Error submitting order:', error);
+        alert(`There was an error submitting your order: ${error instanceof Error ? error.message : 'Unknown error'}. Please check the console for more details.`);
     }
   };
 
@@ -243,6 +252,24 @@ function App() {
                   />
                   {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
                 </div>
+                
+                <div>
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-300 mb-2">
+                    City *
+                  </label>
+                  <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-3 border rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-[#0044ff] focus:border-[#0044ff] transition-colors ${
+                      errors.city ? 'border-red-500 bg-red-900/20' : 'border-gray-700'
+                    }`}
+                    placeholder="San Francisco"
+                  />
+                  {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city}</p>}
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -264,22 +291,40 @@ function App() {
                   </div>
 
                   <div>
-                    <label htmlFor="country" className="block text-sm font-medium text-gray-300 mb-2">
-                      Country *
+                    <label htmlFor="zipCode" className="block text-sm font-medium text-gray-300 mb-2">
+                      Zip Code *
                     </label>
                     <input
                       type="text"
-                      id="country"
-                      name="country"
-                      value={formData.country}
+                      id="zipCode"
+                      name="zipCode"
+                      value={formData.zipCode}
                       onChange={handleInputChange}
                       className={`w-full px-4 py-3 border rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-[#0044ff] focus:border-[#0044ff] transition-colors ${
-                        errors.country ? 'border-red-500 bg-red-900/20' : 'border-gray-700'
+                        errors.zipCode ? 'border-red-500 bg-red-900/20' : 'border-gray-700'
                       }`}
-                      placeholder="United States"
+                      placeholder="94105"
                     />
-                    {errors.country && <p className="mt-1 text-sm text-red-600">{errors.country}</p>}
+                    {errors.zipCode && <p className="mt-1 text-sm text-red-600">{errors.zipCode}</p>}
                   </div>
+                </div>
+                
+                <div>
+                  <label htmlFor="country" className="block text-sm font-medium text-gray-300 mb-2">
+                    Country *
+                  </label>
+                  <input
+                    type="text"
+                    id="country"
+                    name="country"
+                    value={formData.country}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-3 border rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-[#0044ff] focus:border-[#0044ff] transition-colors ${
+                      errors.country ? 'border-red-500 bg-red-900/20' : 'border-gray-700'
+                    }`}
+                    placeholder="United States"
+                  />
+                  {errors.country && <p className="mt-1 text-sm text-red-600">{errors.country}</p>}
                 </div>
               </div>
             </div>
