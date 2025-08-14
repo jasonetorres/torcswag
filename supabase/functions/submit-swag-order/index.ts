@@ -288,7 +288,7 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
   const emailPayload = {
     from: "TORC Swag Store <noreply@resend.dev>",
     to: emailList,
-    subject: `New Swag Order from ${data.name}`,
+    subject: \`New Swag Order from ${data.name}`,
     html: emailContent,
   };
 
@@ -299,7 +299,7 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: \`Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(emailPayload),
@@ -312,7 +312,7 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
     console.log("Resend response body:", responseText);
 
     if (!response.ok) {
-      throw new Error(`Resend API error: ${response.status} ${response.statusText} - ${responseText}`);
+      throw new Error(\`Resend API error: ${response.status} ${response.statusText} - ${responseText}`);
     }
 
     let responseData;
