@@ -183,6 +183,18 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
   
   if (!apiKey) {
     throw new Error("Resend API key not configured");
+      
+      <h3>📍 Shipping Address:</h3>
+      <p>
+        ${data.address}<br>
+        ${data.city}, ${data.stateProvince} ${data.zipCode}<br>
+        ${data.country}
+      </p>
+      
+      <h3>👕 Size Information:</h3>
+      <ul>
+        <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
+    throw new Error(`Resend API error: ${emailResponse.status} - ${emailResult}`);
   }
 
   // Send email to your own email address (the one associated with Resend account)
@@ -211,11 +223,4 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
       <h3>👕 Size Information:</h3>
       <ul>
         <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
-    throw new Error(`Resend API error: ${emailResponse.status} - ${emailResult}`);
-  }
-
-  console.log("Email sent successfully!");
-  return JSON.parse(emailResult);
-}
-  }
 }
