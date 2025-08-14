@@ -351,3 +351,5 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
   
   if (!apiKey) {
     throw new Error("Resend API key not configured");
+  }
+}
