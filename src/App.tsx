@@ -95,21 +95,43 @@ function App() {
   };
   
   const submitOrder = async () => {
-    // Note: You'll need to set up Supabase and get your project URL
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'YOUR_SUPABASE_URL';
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      alert('Supabase configuration is missing. Please connect to Supabase first.');
+      return;
+    }
+    
     const apiUrl = `${supabaseUrl}/functions/v1/submit-swag-order`;
+
+    console.log('Submitting to:', apiUrl);
+    console.log('Form data:', formData);
 
     try {
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY'}`,
+          'Authorization': `Bearer ${supabaseKey}`,
         },
         body: JSON.stringify(formData),
       });
 
-      const result = await response.json();
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+      
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('Failed to parse response as JSON:', jsonError);
+        throw new Error(`Invalid response format: ${responseText}`);
+      }
+
       console.log('Supabase Edge Function response:', result);
 
       if (response.ok && result.success) {
