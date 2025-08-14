@@ -208,7 +208,7 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
   if (!apiKey) {
     throw new Error("Resend API key not configured");
     to: ["jasontorres585@icloud.com"], // Your email address
-    subject: `🎁 New TORC Swag Order from ${data.name}`,
+    subject: \`🎁 New TORC Swag Order from ${data.name}`,
     html: `
       <h2>🎁 New TORC Swag Order Submitted!</h2>
       
@@ -230,4 +230,5 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
       <h3>👕 Size Information:</h3>
       <ul>
         <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
+  }
 }
