@@ -224,3 +224,5 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
       <ul>
         <li><strong>T-Shirt Size:</strong> ${data.tshirtSize}</li>
 }
+  }
+}
