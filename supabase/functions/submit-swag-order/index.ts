@@ -63,7 +63,7 @@ Deno.serve(async (req: Request) => {
     formData.submittedAt = new Date().toISOString();
 
     // Get environment variables
-    const GOOGLE_SHEETS_URL = Deno.env.get("GOOGLE_SHEETS_WEBHOOK_URL");
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzY0TGrg-mwgelTyEUtNejiVW0dUwQ0J8TIYGQahvTRkGr3_QQEEk9q6aL2TqfgahU1/exec";
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     const NOTIFICATION_EMAILS = Deno.env.get("NOTIFICATION_EMAILS");
 
