@@ -116,13 +116,13 @@ function App() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-zinc-900 rounded-2xl shadow-xl p-8">
+          <div className="bg-zinc-900/70 rounded-2xl shadow-xl p-8 backdrop-blur-sm border border-zinc-700">
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-highlight rounded-full mb-4">
                 <Shirt className="w-8 h-8 text-black" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">Order Your torc Swag</h2>
-              <p className="text-gray-400">Fill out the form below to get your awesome torc merchandise!</p>
+              <p className="text-gray-400">Thanks for wanting to rep some TORC swag! Head over to <a href="http://torc.printful.me" className="text-highlight hover:underline">torc.printful.me</a> to find our current swag offerings, then enter data below.</p>
             </div>
 
             {submitStatus === 'success' && (
