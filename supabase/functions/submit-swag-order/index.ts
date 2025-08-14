@@ -186,43 +186,9 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
   const emailPayload = {
     from: "onboarding@resend.dev",
     to: emailList,
-    subject: "New TORC Swag Order Submitted",
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #0044ff;">New TORC Swag Order Submitted</h2>
-        
-        <h3>Customer Information</h3>
-        <p><strong>Name:</strong> ${data.name}</p>
-        <p><strong>Email:</strong> ${data.email}</p>
-        
-        <h3>Shipping Address</h3>
-        <p><strong>Address:</strong> ${data.address}</p>
-        <p><strong>City:</strong> ${data.city}, ${data.stateProvince} ${data.zipCode}</p>
-        <p><strong>Country:</strong> ${data.country}</p>
-        
-        <h3>Sizing</h3>
-        <p><strong>T-Shirt Size:</strong> ${data.tshirtSize}</p>
-        <p><strong>Hoodie Size:</strong> ${data.hoodieSize}</p>
-        
-        <h3>Employment</h3>
-        <p><strong>TORC Employee:</strong> ${data.isEmployee ? 'Yes' : 'No'}</p>
-        ${data.isEmployee ? `<p><strong>Manager:</strong> ${data.manager}</p>` : ''}
-        
-        <h3>Merchandise Preferences</h3>
-        <p><strong>First Choice:</strong> ${data.firstChoice}</p>
-        <p><strong>Second Choice:</strong> ${data.secondChoice}</p>
-        
-        <p style="margin-top: 30px; color: #666; font-size: 12px;">
-          Submitted at: ${data.submittedAt}
-        </p>
-      </div>
-    `
+    subject: "New Swag Order from " + data.name,
+    text: `Someone submitted a swag order!\n\nName: ${data.name}\nEmail: ${data.email}\nFirst Choice: ${data.firstChoice}\nSecond Choice: ${data.secondChoice}`
   };
-
-  console.log("=== EMAIL DEBUG INFO ===");
-  console.log("API Key (first 10 chars):", apiKey.substring(0, 10) + "...");
-  console.log("Email payload:", JSON.stringify(emailPayload, null, 2));
-  console.log("========================");
 
   const emailResponse = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -233,26 +199,13 @@ async function sendEmailNotifications(data: SwagOrderData, apiKey?: string, emai
     body: JSON.stringify(emailPayload),
   });
 
-  console.log("Email response status:", emailResponse.status);
-  console.log("Email response headers:", Object.fromEntries(emailResponse.headers.entries()));
-
   const emailResult = await emailResponse.text();
-  console.log("Email response body:", emailResult);
 
   if (!emailResponse.ok) {
     throw new Error(`Resend API error: ${emailResponse.status} - ${emailResult}`);
   }
 
-  let parsedResult;
-  try {
-    parsedResult = JSON.parse(emailResult);
-    console.log("Parsed email result:", parsedResult);
-  } catch (parseError) {
-    console.error("Failed to parse email response:", parseError);
-    throw new Error(`Invalid email response format: ${emailResult}`);
-  }
-
-  return parsedResult;
+  return JSON.parse(emailResult);
 
   return JSON.parse(result);
 }
