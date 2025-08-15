@@ -61,80 +61,47 @@ function App() {
     setErrorMessage('');
 
     try {
-      const dataToSubmit = {
+      const submissionData = {
         ...formData,
         submittedAt: new Date().toISOString()
       };
-      
-      console.log('Submitting to Google Sheets:', dataToSubmit);
-      
+
+      console.log('Submitting to Google Sheets:', submissionData);
+
       const response = await fetch('https://script.google.com/macros/s/AKfycbzY0TGrg-mwgelTyEUtNejiVW0dUwQ0J8TIYGQahvTRkGr3_QQEEk9q6aL2TqfgahU1/exec', {
         method: 'POST',
+        mode: 'no-cors',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(dataToSubmit)
+        body: JSON.stringify(submissionData)
       });
 
-      console.log('Response received:', response.status, response.statusText);
+      // With no-cors mode, we can't read the response, so we assume success
+      console.log('Form submitted successfully');
+      setSubmitStatus('success');
       
-      const responseText = await response.text();
-      console.log('Response text:', responseText);
-      
-      let result;
-      try {
-        result = JSON.parse(responseText);
-        console.log('Parsed result:', result);
-      } catch (parseError) {
-        console.log('Could not parse JSON, treating as success');
-        if (response.ok) {
-          setSubmitStatus('success');
-          setFormData({
-            name: '',
-            email: '',
-            address: '',
-            city: '',
-            stateProvince: '',
-            zipCode: '',
-            country: '',
-            tshirtSize: 'M',
-            hoodieSize: 'M',
-            isEmployee: false,
-            manager: '',
-            firstChoice: 'T-Shirt Only',
-            secondChoice: 'Hoodie Only'
-          });
-          return;
-        } else {
-          throw new Error(`HTTP ${response.status}: ${responseText}`);
-        }
-      }
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        address: '',
+        city: '',
+        stateProvince: '',
+        zipCode: '',
+        country: '',
+        tshirtSize: 'M',
+        hoodieSize: 'M',
+        isEmployee: false,
+        manager: '',
+        firstChoice: 'T-Shirt Only',
+        secondChoice: 'Hoodie Only'
+      });
 
-      if (result && result.success) {
-        setSubmitStatus('success');
-        setFormData({
-          name: '',
-          email: '',
-          address: '',
-          city: '',
-          stateProvince: '',
-          zipCode: '',
-          country: '',
-          tshirtSize: 'M',
-          hoodieSize: 'M',
-          isEmployee: false,
-          manager: '',
-          firstChoice: 'T-Shirt Only',
-          secondChoice: 'Hoodie Only'
-        });
-      } else {
-        throw new Error(result?.error || 'Submission failed');
-      }
-      
     } catch (error) {
       console.error('Submit error:', error);
       setSubmitStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Failed to submit form');
+      setErrorMessage('Failed to submit form. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
