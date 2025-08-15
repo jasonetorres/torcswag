@@ -62,16 +62,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 async function sendToGoogleSheets(data: SwagOrderData, sheetsUrl: string) {
+  // Google Apps Script expects form data, not JSON
+  const formData = new URLSearchParams();
+  
+  // Convert all data to form fields
+  Object.entries(data).forEach(([key, value]) => {
+    formData.append(key, String(value));
+  });
+
   const response = await fetch(sheetsUrl, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: JSON.stringify(data),
+    body: formData.toString(),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`Google Sheets API error: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  // Google Apps Script may return HTML instead of JSON, so handle both
+  const responseText = await response.text();
+  try {
+    return JSON.parse(responseText);
+  } catch {
+    // If it's not JSON, return the text response
+    return { message: responseText };
   }
 }
