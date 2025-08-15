@@ -76,7 +76,7 @@ function App() {
         result = JSON.parse(responseText);
       } catch (jsonError) {
         setSubmitStatus('error');
-        setErrorMessage(`Server response error: ${responseText || 'Invalid response format'}`);
+        setErrorMessage(`Server returned non-JSON response: ${responseText.substring(0, 200)}${responseText.length > 200 ? '...' : ''}`);
         return;
       }
 
