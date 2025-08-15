@@ -69,14 +69,14 @@ function App() {
         body: JSON.stringify(formData),
       });
 
+      const responseText = await response.text();
       let result;
+      
       try {
-        result = await response.json();
+        result = JSON.parse(responseText);
       } catch (jsonError) {
-        // Handle cases where response is not valid JSON
-        const textResponse = await response.text();
         setSubmitStatus('error');
-        setErrorMessage(`Server response error: ${textResponse || 'Invalid response format'}`);
+        setErrorMessage(`Server response error: ${responseText || 'Invalid response format'}`);
         return;
       }
 
