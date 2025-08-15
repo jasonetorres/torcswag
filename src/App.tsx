@@ -61,28 +61,23 @@ function App() {
     setErrorMessage('');
 
     try {
-      // Add timestamp to the data
       const dataToSubmit = {
         ...formData,
         submittedAt: new Date().toISOString()
       };
       
-      console.log('Submitting form data:', dataToSubmit);
+      console.log('Submitting to Google Sheets:', dataToSubmit);
       
-      // Submit directly to Google Sheets with proper headers
       const response = await fetch('https://script.google.com/macros/s/AKfycbzY0TGrg-mwgelTyEUtNejiVW0dUwQ0J8TIYGQahvTRkGr3_QQEEk9q6aL2TqfgahU1/exec', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
-        body: JSON.stringify(dataToSubmit),
-        mode: 'cors'
+        body: JSON.stringify(dataToSubmit)
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-
+      console.log('Response received:', response.status, response.statusText);
+      
       const responseText = await response.text();
       console.log('Response text:', responseText);
       
@@ -90,12 +85,10 @@ function App() {
       try {
         result = JSON.parse(responseText);
         console.log('Parsed result:', result);
-      } catch (jsonError) {
-        console.error('Failed to parse JSON:', jsonError);
-        // If we can't parse JSON but got a 200 response, assume success
+      } catch (parseError) {
+        console.log('Could not parse JSON, treating as success');
         if (response.ok) {
           setSubmitStatus('success');
-          // Reset form on success
           setFormData({
             name: '',
             email: '',
@@ -113,17 +106,12 @@ function App() {
           });
           return;
         } else {
-          setSubmitStatus('error');
-          setErrorMessage(`Server error: ${response.status} - ${responseText.substring(0, 200)}`);
-          return;
+          throw new Error(`HTTP ${response.status}: ${responseText}`);
         }
       }
 
       if (result && result.success) {
         setSubmitStatus('success');
-        console.log('Form submitted successfully to row:', result.row);
-        
-        // Reset form on success
         setFormData({
           name: '',
           email: '',
@@ -140,72 +128,13 @@ function App() {
           secondChoice: 'Hoodie Only'
         });
       } else {
-        setSubmitStatus('error');
-        setErrorMessage(result?.error || 'Failed to submit order');
-        console.error('Submission failed:', result.error);
+        throw new Error(result?.error || 'Submission failed');
       }
       
     } catch (error) {
       console.error('Submit error:', error);
       setSubmitStatus('error');
-      setErrorMessage(`Network error: ${error instanceof Error ? error.message : 'Failed to submit form'}`);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSubmitOld = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
-    setErrorMessage('');
-
-    try {
-      const response = await fetch('/api/submit-swag-order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const responseText = await response.text();
-      let result;
-      
-      try {
-        result = JSON.parse(responseText);
-      } catch (jsonError) {
-        setSubmitStatus('error');
-        setErrorMessage(`Server returned non-JSON response: ${responseText.substring(0, 200)}${responseText.length > 200 ? '...' : ''}`);
-        return;
-      }
-
-      if (result.success) {
-        setSubmitStatus('success');
-        // Reset form
-        setFormData({
-          name: '',
-          email: '',
-          address: '',
-          city: '',
-          stateProvince: '',
-          zipCode: '',
-          country: '',
-          tshirtSize: 'M',
-          hoodieSize: 'M',
-          isEmployee: false,
-          manager: '',
-          firstChoice: 'T-Shirt Only',
-          secondChoice: 'Hoodie Only'
-        });
-      } else {
-        setSubmitStatus('error');
-        setErrorMessage(result.error || 'Failed to submit order');
-      }
-    } catch (error) {
-      setSubmitStatus('error');
-      setErrorMessage('Network error. Please try again.');
-      console.error('Submit error:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to submit form');
     } finally {
       setIsSubmitting(false);
     }
@@ -248,7 +177,7 @@ function App() {
               </div>
             )}
 
-            <form onSubmit={handleSubmitOld} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Personal Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-200 flex items-center space-x-2">
