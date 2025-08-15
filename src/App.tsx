@@ -61,18 +61,24 @@ function App() {
     setErrorMessage('');
 
     try {
-      console.log('Submitting form data:', formData);
+      // Add timestamp to the data
+      const dataToSubmit = {
+        ...formData,
+        submittedAt: new Date().toISOString()
+      };
       
-      const response = await fetch('/api/submit-swag-order', {
+      console.log('Submitting form data:', dataToSubmit);
+      
+      // Submit directly to Google Sheets
+      const response = await fetch('https://script.google.com/macros/s/AKfycbzY0TGrg-mwgelTyEUtNejiVW0dUwQ0J8TIYGQahvTRkGr3_QQEEk9q6aL2TqfgahU1/exec', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSubmit),
       });
 
       console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
       
       const responseText = await response.text();
       console.log('Response text:', responseText);
@@ -80,43 +86,44 @@ function App() {
       let result;
       try {
         result = JSON.parse(responseText);
+        console.log('Parsed result:', result);
       } catch (jsonError) {
         console.error('Failed to parse JSON:', jsonError);
         setSubmitStatus('error');
-        setErrorMessage(`Server returned: ${responseText.substring(0, 200)}`);
+        setErrorMessage(`Invalid response from Google Sheets: ${responseText.substring(0, 200)}`);
         return;
       }
 
       if (result.success) {
         setSubmitStatus('success');
-        console.log('Form submitted successfully');
+        console.log('Form submitted successfully to row:', result.row);
+        
+        // Reset form on success
+        setFormData({
+          name: '',
+          email: '',
+          address: '',
+          city: '',
+          stateProvince: '',
+          zipCode: '',
+          country: '',
+          tshirtSize: 'M',
+          hoodieSize: 'M',
+          isEmployee: false,
+          manager: '',
+          firstChoice: 'T-Shirt Only',
+          secondChoice: 'Hoodie Only'
+        });
       } else {
         setSubmitStatus('error');
         setErrorMessage(result.error || 'Failed to submit order');
         console.error('Submission failed:', result.error);
       }
       
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        address: '',
-        city: '',
-        stateProvince: '',
-        zipCode: '',
-        country: '',
-        tshirtSize: 'M',
-        hoodieSize: 'M',
-        isEmployee: false,
-        manager: '',
-        firstChoice: 'T-Shirt Only',
-        secondChoice: 'Hoodie Only'
-      });
-      
     } catch (error) {
       console.error('Submit error:', error);
       setSubmitStatus('error');
-      setErrorMessage(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setErrorMessage(`Network error: ${error instanceof Error ? error.message : 'Failed to connect to Google Sheets'}`);
     } finally {
       setIsSubmitting(false);
     }
