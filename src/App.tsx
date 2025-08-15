@@ -61,6 +61,112 @@ function App() {
     setErrorMessage('');
 
     try {
+      // Try the API endpoint first, fallback to direct Google Sheets if needed
+      let response;
+      try {
+        response = await fetch('/api/submit-swag-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+      } catch (apiError) {
+        // Fallback to direct Google Sheets submission
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzY0TGrg-mwgelTyEUtNejiVW0dUwQ0J8TIYGQahvTRkGr3_QQEEk9q6aL2TqfgahU1/exec';
+        
+        const formDataForSheets = new URLSearchParams();
+        Object.entries(formData).forEach(([key, value]) => {
+          formDataForSheets.append(key, String(value));
+        });
+        formDataForSheets.append('submittedAt', new Date().toISOString());
+        
+        response = await fetch(GOOGLE_SHEETS_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formDataForSheets.toString(),
+        });
+      }
+
+      if (!response) {
+        throw new Error('No response received');
+      }
+
+      const responseText = await response.text();
+      
+      // Handle Google Apps Script responses (often return "success" or HTML)
+      if (response.ok && (responseText.includes('success') || responseText.trim() === 'success')) {
+        setSubmitStatus('success');
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          address: '',
+          city: '',
+          stateProvince: '',
+          zipCode: '',
+          country: '',
+          tshirtSize: 'M',
+          hoodieSize: 'M',
+          isEmployee: false,
+          manager: '',
+          firstChoice: 'T-Shirt Only',
+          secondChoice: 'Hoodie Only'
+        });
+        return;
+      }
+
+      // Try to parse as JSON for API responses
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (jsonError) {
+        // If not JSON and not a success response, show error
+        setSubmitStatus('error');
+        setErrorMessage(`Server returned: ${responseText.substring(0, 200)}${responseText.length > 200 ? '...' : ''}`);
+        return;
+      }
+
+      if (result.success) {
+        setSubmitStatus('success');
+        // Reset form
+        setFormData({
+          name: '',
+          email: '',
+          address: '',
+          city: '',
+          stateProvince: '',
+          zipCode: '',
+          country: '',
+          tshirtSize: 'M',
+          hoodieSize: 'M',
+          isEmployee: false,
+          manager: '',
+          firstChoice: 'T-Shirt Only',
+          secondChoice: 'Hoodie Only'
+        });
+      } else {
+        setSubmitStatus('error');
+        setErrorMessage(result.error || 'Failed to submit order');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setErrorMessage('Network error. Please try again.');
+      console.error('Submit error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmitOld = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+
+    try {
       const response = await fetch('/api/submit-swag-order', {
         method: 'POST',
         headers: {
