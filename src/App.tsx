@@ -61,27 +61,40 @@ function App() {
     setErrorMessage('');
 
     try {
-      // Submit directly to Google Sheets
-      const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzY0TGrg-mwgelTyEUtNejiVW0dUwQ0J8TIYGQahvTRkGr3_QQEEk9q6aL2TqfgahU1/exec';
+      console.log('Submitting form data:', formData);
       
-      const formDataForSheets = new URLSearchParams();
-      Object.entries(formData).forEach(([key, value]) => {
-        formDataForSheets.append(key, String(value));
-      });
-      formDataForSheets.append('submittedAt', new Date().toISOString());
-      
-      const response = await fetch(GOOGLE_SHEETS_URL, {
+      const response = await fetch('/api/submit-swag-order', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: formDataForSheets.toString(),
-        mode: 'no-cors'
+        body: JSON.stringify(formData),
       });
 
-      // Google Apps Script with no-cors mode doesn't return readable response
-      // So we assume success if no error was thrown
-      setSubmitStatus('success');
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+      
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('Failed to parse JSON:', jsonError);
+        setSubmitStatus('error');
+        setErrorMessage(`Server returned: ${responseText.substring(0, 200)}`);
+        return;
+      }
+
+      if (result.success) {
+        setSubmitStatus('success');
+        console.log('Form submitted successfully');
+      } else {
+        setSubmitStatus('error');
+        setErrorMessage(result.error || 'Failed to submit order');
+        console.error('Submission failed:', result.error);
+      }
       
       // Reset form
       setFormData({
@@ -101,9 +114,9 @@ function App() {
       });
       
     } catch (error) {
-      setSubmitStatus('error');
-      setErrorMessage('Failed to submit order. Please try again.');
       console.error('Submit error:', error);
+      setSubmitStatus('error');
+      setErrorMessage(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
